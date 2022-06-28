@@ -1,0 +1,54 @@
+name: Refesh logs
+
+on:
+  workflow_call:
+    inputs:
+      repository_name:
+        required: true
+        type: string
+      repository_owner:
+        required: true
+        type: string        
+env:
+  APP_ENVIRONMENT: NONE
+
+jobs:
+  do-task:
+    runs-on: ubuntu-latest
+    steps:
+      - if: startsWith(inputs.repository_name, format('{0}{1}',inputs.repository_owner,'/PRODUCCION_'))
+        run: echo "APP_ENVIRONMENT=PRODUCCION" >> $GITHUB_ENV
+      - if: startsWith(inputs.repository_name, format('{0}{1}',inputs.repository_owner,'/PRUEBAS_'))
+        run: echo "APP_ENVIRONMENT=PRUEBAS" >> $GITHUB_ENV
+      - if: startsWith(inputs.repository_name, format('{0}{1}',inputs.repository_owner,'/PREPRODUCCION_'))
+        run: echo "APP_ENVIRONMENT=PREPRODUCCION" >> $GITHUB_ENV
+      - name: Imprimir entorno
+        run: |
+          echo Ejecutanto tarea en el entorno de $APP_ENVIRONMENT
+      - name: hacer la tarea
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            set -x
+            REPOSITORY_SIMPLE_NAME=`echo ${{ inputs.repository_name }} | cut -d "/" -f2`
+            echo $REPOSITORY_SIMPLE_NAME
+            cd /tmp
+            pwd
+            rm -rf $REPOSITORY_SIMPLE_NAME
+            git clone https://devfpempresa:${{secrets.TOKEN}}@github.com/${{ inputs.repository_name }}.git
+            cd $REPOSITORY_SIMPLE_NAME
+            cd logs
+            pwd
+            rm -rf *
+            cp -r /opt/docker_webapps/apps/fpempresa/${{ env.APP_ENVIRONMENT }}/web_logs .
+            cp -r /opt/docker_webapps/apps/fpempresa/${{ env.APP_ENVIRONMENT }}/database_logs .
+            git add *
+            git config user.email ${{ secrets.EMAIL }}
+            git config user.name "soporte"
+            git commit -am "Actualización de los logs"
+            git push

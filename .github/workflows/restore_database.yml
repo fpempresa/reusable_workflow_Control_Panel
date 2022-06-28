@@ -1,0 +1,37 @@
+name: Restore Database
+
+on:
+  workflow_call:
+    inputs:
+      repository_name:
+        required: true
+        type: string
+      repository_owner:
+        required: true
+        type: string        
+env:
+  APP_ENVIRONMENT: NONE
+
+jobs:
+  do-task:
+    runs-on: ubuntu-latest
+    steps:
+      - if: startsWith(inputs.repository_name, format('{0}{1}',inputs.repository_owner,'/PRODUCCION_'))
+        run: echo "APP_ENVIRONMENT=PRODUCCION" >> $GITHUB_ENV
+      - if: startsWith(inputs.repository_name, format('{0}{1}',inputs.repository_owner,'/PRUEBAS_'))
+        run: echo "APP_ENVIRONMENT=PRUEBAS" >> $GITHUB_ENV
+      - if: startsWith(inputs.repository_name, format('{0}{1}',inputs.repository_owner,'/PREPRODUCCION_'))
+        run: echo "APP_ENVIRONMENT=PREPRODUCCION" >> $GITHUB_ENV
+      - name: Imprimir entorno
+        run: |
+          echo Ejecutanto tarea en el entorno de $APP_ENVIRONMENT
+      - name: hacer la tarea
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            /opt/docker_webapps/bin/webapp.sh restore_database fpempresa ${{ env.APP_ENVIRONMENT }}
+          # /opt/docker_webapps/bin/webapp.sh restore_database fpempresa ${{ env.APP_ENVIRONMENT }} DIA 4 PRODUCCION
