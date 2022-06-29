@@ -9,6 +9,10 @@ on:
       repository_owner:
         required: true
         type: string        
+      app:
+        required: true
+        type: string 
+
 env:
   APP_ENVIRONMENT: NONE
 
@@ -45,8 +49,8 @@ jobs:
             cd logs
             pwd
             rm -rf *
-            cp -r /opt/docker_webapps/apps/${{ secrets.APP }}/${{ env.APP_ENVIRONMENT }}/web_logs .
-            cp -r /opt/docker_webapps/apps/${{ secrets.APP }}/${{ env.APP_ENVIRONMENT }}/database_logs .
+            cp -r /opt/docker_webapps/apps/${{ inputs.app }}/${{ env.APP_ENVIRONMENT }}/web_logs .
+            cp -r /opt/docker_webapps/apps/${{ inputs.app }}/${{ env.APP_ENVIRONMENT }}/database_logs .
             git add *
             git config user.email ${{ secrets.EMAIL }}
             git config user.name "soporte"

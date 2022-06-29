@@ -9,6 +9,10 @@ on:
       repository_owner:
         required: true
         type: string        
+      app:
+        required: true
+        type: string 
+
 env:
   APP_ENVIRONMENT: NONE
 
