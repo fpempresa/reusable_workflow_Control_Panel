@@ -52,7 +52,7 @@ jobs:
             cp -r /opt/docker_webapps/apps/${{ inputs.app }}/${{ env.APP_ENVIRONMENT }}/web_logs .
             cp -r /opt/docker_webapps/apps/${{ inputs.app }}/${{ env.APP_ENVIRONMENT }}/database_logs .
             git add *
-            git config user.email ${{ secrets.EMAIL }}
-            git config user.name "soporte"
+            git config user.email githubaction@github.com
+            git config user.name "githubaction"
             git commit -am "Actualización de los logs"
             git push
