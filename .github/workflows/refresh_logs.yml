@@ -40,13 +40,13 @@ jobs:
             cd /tmp
             pwd
             rm -rf $REPOSITORY_SIMPLE_NAME
-            git clone https://devfpempresa:${{secrets.TOKEN}}@github.com/${{ inputs.repository_name }}.git
+            git clone https://${{secrets.CURRENT_REPO_LOGIN_PASSWORD}}@github.com/${{ inputs.repository_name }}.git
             cd $REPOSITORY_SIMPLE_NAME
             cd logs
             pwd
             rm -rf *
-            cp -r /opt/docker_webapps/apps/fpempresa/${{ env.APP_ENVIRONMENT }}/web_logs .
-            cp -r /opt/docker_webapps/apps/fpempresa/${{ env.APP_ENVIRONMENT }}/database_logs .
+            cp -r /opt/docker_webapps/apps/${{ secrets.APP }}/${{ env.APP_ENVIRONMENT }}/web_logs .
+            cp -r /opt/docker_webapps/apps/${{ secrets.APP }}/${{ env.APP_ENVIRONMENT }}/database_logs .
             git add *
             git config user.email ${{ secrets.EMAIL }}
             git config user.name "soporte"
